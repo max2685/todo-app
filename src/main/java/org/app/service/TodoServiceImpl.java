@@ -1,41 +1,68 @@
 package org.app.service;
 
-import org.app.model.RecordingModel;
+import lombok.RequiredArgsConstructor;
+import org.app.dto.TaskDto;
+import org.app.dto.TaskResponseDto;
+import org.app.entities.TaskEntity;
 import org.app.repository.TodoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor
 public class TodoServiceImpl implements TodoService {
-    @Autowired
-    private TodoRepository todoRepository;
+    private final TodoRepository todoRepository;
 
     @Override
-    public RecordingModel saveRecording(RecordingModel recording) {
-        recording.setCreatedDate(LocalDate.now());
-        return todoRepository.save(recording);
+    public TaskResponseDto saveTask(TaskDto taskCreateDto) {
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setTitle(taskCreateDto.getTitle());
+        taskEntity.setComment(taskCreateDto.getComment());
+        taskEntity.setDueDate(taskCreateDto.getDueDate());
+        taskEntity.setCompleted(taskCreateDto.isCompleted());
+        taskEntity.setCreatedDate(LocalDate.now());
+
+        TaskEntity savedTask = todoRepository.save(taskEntity);
+        return mapToResponseDto(savedTask);
     }
 
     @Override
-    public RecordingModel getRecordingById(Long id) {
-        return todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+    public TaskResponseDto getTaskById(Long id) {
+        TaskEntity taskEntity = todoRepository.findById(id)
+                .orElseThrow(() -> new IllegalIdentifierException("Task not found"));
+        return mapToResponseDto(taskEntity);
     }
 
     @Override
-    public RecordingModel editRecording(Long id, RecordingModel recordingDetails) {
-        RecordingModel recordingModel = todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
-        recordingModel.setTitle(recordingDetails.getTitle());
-        recordingModel.setComment(recordingDetails.getComment());
-        recordingModel.setCreatedDate(recordingDetails.getCreatedDate());
-        recordingModel.setDueDate(recordingDetails.getDueDate());
-        recordingModel.setCompleted(recordingDetails.isCompleted());
-        return todoRepository.save(recordingModel);
+    public TaskResponseDto editTask(Long id, TaskDto taskEditDto) {
+        TaskEntity taskEntity = todoRepository.findById(id)
+                .orElseThrow(() -> new IllegalIdentifierException("Task not found"));
+
+        taskEntity.setTitle(taskEditDto.getTitle());
+        taskEntity.setComment(taskEditDto.getComment());
+        taskEntity.setDueDate(taskEditDto.getDueDate());
+        taskEntity.setCompleted(taskEditDto.isCompleted());
+
+        TaskEntity updatedTask = todoRepository.save(taskEntity);
+        return mapToResponseDto(updatedTask);
     }
 
     @Override
-    public void deleteRecording(Long id) {
+    public void deleteTask(Long id) {
         todoRepository.deleteById(id);
+    }
+
+    private TaskResponseDto mapToResponseDto(TaskEntity taskEntity) {
+        TaskResponseDto responseDto = new TaskResponseDto();
+        responseDto.setId(taskEntity.getId());
+        responseDto.setTitle(taskEntity.getTitle());
+        responseDto.setComment(taskEntity.getComment());
+        responseDto.setCreatedDate(taskEntity.getCreatedDate());
+        responseDto.setDueDate(taskEntity.getDueDate());
+        responseDto.setCompleted(taskEntity.isCompleted());
+        responseDto.setUserId(taskEntity.getUser().getId());
+        return responseDto;
     }
 }
