@@ -47,6 +47,8 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     public Optional<UserDetails> loadUserByUsernameOpt(String username) {
+        // todo: investigate
+        //  doesn't work as throws java.lang.IllegalArgumentException: Cannot pass null or empty values to constructor
         Optional<UserEntity> findByUsername = userRepository.findByUsername(username);
         return findByUsername.map(user ->
                 User.builder()

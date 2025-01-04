@@ -33,6 +33,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestDto user) {
+        // todo: user can create themself with role ADMIN
         Optional<UserDetails> userOpt = userDetailService.loadUserByUsernameOpt(user.getUsername());
         if (userOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already present");
@@ -44,7 +45,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody AuthRequestDto authRequestDto) {
-
         Authentication authenticationResult = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDto.getUsername(), authRequestDto.getPassword()));
 
