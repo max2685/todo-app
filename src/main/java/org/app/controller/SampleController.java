@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SampleController {
-
+    // todo: how is this controller and users with admin roles are going to be used?
 
     @GetMapping("/home")
     public String handleWelcome() {

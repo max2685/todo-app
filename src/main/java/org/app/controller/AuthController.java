@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestDto user) {
-        // todo: user can create themself with role ADMIN
+        // todo: user can create themself with role ADMIN or any other random text
         Optional<UserDetails> userOpt = userDetailService.loadUserByUsernameOpt(user.getUsername());
         if (userOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already present");
