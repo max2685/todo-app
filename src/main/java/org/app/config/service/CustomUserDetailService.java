@@ -18,6 +18,9 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
+    // todo: UserDetailsService is required for Spring security to load user data only.
+    //  all entity-related code should be extracted to another service not to break Single responsibility principle
+    //  Say, UserService would do.
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,13 +43,15 @@ public class CustomUserDetailService implements UserDetailsService {
         UserEntity user = new UserEntity();
         user.setUsername(userRequestDto.getUsername());
         user.setRole(userRequestDto.getRole());
-        user.setPassword(userRequestDto.getPassword());
+        user.setPassword(userRequestDto.getPassword()); // todo: it's not considered a good practice to store user passwords in plain text.
         user = userRepository.save(user);
 
         return User.builder().username(user.getUsername()).password(user.getPassword()).roles(getRoles(user.getRole())).build();
     }
 
     public Optional<UserDetails> loadUserByUsernameOpt(String username) {
+        // todo: investigate
+        //  doesn't work as throws java.lang.IllegalArgumentException: Cannot pass null or empty values to constructor
         Optional<UserEntity> findByUsername = userRepository.findByUsername(username);
         return findByUsername.map(user ->
                 User.builder()
