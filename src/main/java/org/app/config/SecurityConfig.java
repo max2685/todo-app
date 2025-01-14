@@ -33,8 +33,8 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests((requests) -> {
             requests.requestMatchers("/home").permitAll();
             requests.requestMatchers("/public/**").permitAll();
-            requests.requestMatchers("/user/**").hasRole("USER");
-            requests.requestMatchers("/admin/**").hasRole("ADMIN");
+            requests.requestMatchers("/api/user/**").hasRole("CLIENT");
+            requests.requestMatchers("/api/admin/**").hasRole("ADMIN");
             requests.anyRequest().authenticated();
         });
         httpSecurity.formLogin(Customizer.withDefaults());

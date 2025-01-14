@@ -1,11 +1,15 @@
 package org.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.app.config.service.CustomUserDetailService;
 import org.app.config.service.JWTService;
 import org.app.dto.AuthRequestDto;
 import org.app.dto.RegisterUserRequestDto;
+import org.app.dto.RegisterUserResponseDto;
+import org.app.entities.UserEntity;
+import org.app.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,17 +32,17 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailService userDetailService;
+    private final CustomUserDetailService customUserDetailService;
+    private final UserServiceImpl userService;
     private final JWTService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestDto user) {
-        // todo: user can create themself with role ADMIN or any other random text
-        Optional<UserDetails> userOpt = userDetailService.loadUserByUsernameOpt(user.getUsername());
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterUserRequestDto user) {
+        Optional<UserEntity> userOpt = userService.loadUserByUsernameOpt(user.getUsername());
         if (userOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already present");
         } else {
-            UserDetails userDetails = userDetailService.saveUser(user);
+            RegisterUserResponseDto userDetails = userService.saveUser(user);
             return ResponseEntity.ok(userDetails);
         }
     }
@@ -48,17 +52,12 @@ public class AuthController {
         Authentication authenticationResult = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequestDto.getUsername(), authRequestDto.getPassword()));
 
-        log.info(authenticationResult.toString() + " -------- authenticationResult");
-
         if (authenticationResult.isAuthenticated()) {
-
-            UserDetails userDetails = userDetailService.loadUserByUsername(authRequestDto.getUsername());
-            log.info(authRequestDto.getUsername() + "---------- User found in database");
-
+            UserDetails userDetails = customUserDetailService.loadUserByUsername(authRequestDto.getUsername());
             String jwtToken = jwtService.generateToken(userDetails);
-            return ResponseEntity.ok().body("Token: " + jwtToken);
+            return ResponseEntity.ok().body("Bearer " + jwtToken);
         } else {
-            throw new UsernameNotFoundException("Invalid username or password - " + authRequestDto.getUsername());
+            throw new UsernameNotFoundException("Invalid username or password");
         }
     }
 }
