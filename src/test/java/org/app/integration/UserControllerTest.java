@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -17,9 +18,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static io.restassured.RestAssured.given;
 
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Container
     @ServiceConnection
@@ -27,6 +28,9 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @LocalServerPort
+    private int port;
 
     @Test
     void shouldSaveUserAndLogin() {
@@ -40,8 +44,7 @@ public class UserControllerTest {
                 .body(registerRequest)
                 .log().all()
                 .when()
-                .baseUri("http://localhost")
-                .port(8080)
+                .port(port)
                 .post("/public/register")
                 .then()
                 .log().all()
