@@ -42,7 +42,6 @@ public class JWTService {
     }
 
     private Claims getClaims(String jwtToken) {
-//        return Jwts.parser().decryptWith(key).build().parseEncryptedClaims(jwtToken).getPayload();
         return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(jwtToken).getPayload();
     }
 

@@ -3,6 +3,9 @@ package org.app.config;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
+
+    // todo
+
     ADMIN("ADMIN"),
     CLIENT("CLIENT");
 
