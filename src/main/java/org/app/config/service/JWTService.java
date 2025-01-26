@@ -16,9 +16,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class JWTService {
 
-    // todo move both constants to properties
-    //  it's a general rule to use application.properties for configurable parameters (like validity time) and sensitive data (like secret key),
-    //  because on prod/test environments these values will be different
     private static final String SECRET_KEY = "220A1EC50F1FCF5D547C8A78E0F459120780BB374FC9E1B90FCFCE3F1D14D6381733878836A5414C0A0B1250363144BE9B928F54304BD0D0CEEBE0E966E79779";
     private static final long VALIDITY_OF_TOKEN = TimeUnit.MINUTES.toMillis(30);
 
