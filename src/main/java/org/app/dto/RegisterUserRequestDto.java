@@ -12,7 +12,7 @@ public class RegisterUserRequestDto {
     private String username;
 
     @NotBlank
-    @Size(min = 8, max = 20)
+    @Size(min = 8, max = 20) // todo
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$")
     private String password;
 }

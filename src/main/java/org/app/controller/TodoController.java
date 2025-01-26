@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @Validated
 @RequestMapping("/api/user")
-public class TodoController {
+public class TodoController { // todo
+
     private final TodoServiceImpl todoServiceImpl;
 
     @PostMapping
@@ -29,7 +30,7 @@ public class TodoController {
         return ResponseEntity.ok(task);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}") // todo
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("id") Long id, @Valid @RequestBody TaskDto taskEditDto, Authentication authentication) {
         TaskResponseDto updatedTask = todoServiceImpl.editTask(id, taskEditDto, authentication.getName());
         return ResponseEntity.ok(updatedTask);
