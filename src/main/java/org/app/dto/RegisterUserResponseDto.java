@@ -8,6 +8,6 @@ import org.app.config.Role;
 @Builder
 public class RegisterUserResponseDto {
     private String username;
-    private String password;
+    private String password; // todo
     private Role role;
 }
