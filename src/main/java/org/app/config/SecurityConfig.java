@@ -13,6 +13,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,12 +30,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
         httpSecurity.authorizeHttpRequests((requests) -> {
             requests.requestMatchers("/home").permitAll();
             requests.requestMatchers("/public/**").permitAll();
-            requests.requestMatchers("/api/user/**").hasRole("CLIENT");
-            requests.requestMatchers("/api/admin/**").hasRole("ADMIN");
+            requests.requestMatchers("/api/user/todos/**").hasRole("CLIENT");
+            requests.requestMatchers("/api/admin/todos/**").hasRole("ADMIN");
             requests.anyRequest().authenticated();
         });
         httpSecurity.formLogin(Customizer.withDefaults());

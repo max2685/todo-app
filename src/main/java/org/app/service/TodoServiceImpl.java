@@ -1,27 +1,31 @@
 package org.app.service;
 
 import lombok.RequiredArgsConstructor;
+import org.app.dto.EditTaskRequestDto;
 import org.app.dto.TaskDto;
 import org.app.dto.TaskResponseDto;
 import org.app.entities.TaskEntity;
 import org.app.entities.UserEntity;
 import org.app.repository.TodoRepository;
-import org.hibernate.boot.model.naming.IllegalIdentifierException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class TodoServiceImpl implements TodoService {
     private final TodoRepository todoRepository;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @Override
     public TaskResponseDto saveTask(TaskDto taskCreateDto, String username) {
         UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        validateDates(taskCreateDto);
 
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(taskCreateDto.getTitle());
@@ -38,33 +42,54 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TaskResponseDto getTaskById(Long id, String username) {
         UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         TaskEntity taskEntity = todoRepository.findById(id)
-                .orElseThrow(() -> new IllegalIdentifierException("Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         if (!taskEntity.getUser().equals(loadedUser)) {
-            throw new SecurityException("You do not have permission to access this task");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this task");
         }
 
         return mapToResponseDto(taskEntity);
     }
 
     @Override
-    public TaskResponseDto editTask(Long id, TaskDto taskEditDto, String username) {
+    public List<TaskResponseDto> getAllTasks(String username) {
         UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        List<TaskEntity> tasks = todoRepository.findAllByUser(loadedUser);
+        return tasks.stream()
+                .map(this::mapToResponseDto)
+                .toList();
+    }
+
+    @Override
+    public List<TaskResponseDto> filterTasks(String username, String createdDate, String dueDate, boolean completed, String title) {
+        UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        LocalDate parsedCreatedDate = parseDate(createdDate);
+        LocalDate parsedDueDate = parseDate(dueDate);
+
+        List<TaskEntity> tasks = todoRepository.filterTasks(loadedUser, parsedCreatedDate, parsedDueDate, completed, title);
+        return tasks.stream()
+                .map(this::mapToResponseDto)
+                .toList();
+    }
+
+    @Override
+    public TaskResponseDto editTaskStatus(Long id, EditTaskRequestDto taskEditDto, String username) {
+        UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         TaskEntity taskEntity = todoRepository.findById(id)
-                .orElseThrow(() -> new IllegalIdentifierException("Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         if (!taskEntity.getUser().equals(loadedUser)) {
-            throw new SecurityException("You do not have permission to update this task");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this task");
         }
-
-        taskEntity.setTitle(taskEditDto.getTitle());
-        taskEntity.setComment(taskEditDto.getComment());
-        taskEntity.setDueDate(taskEditDto.getDueDate());
         taskEntity.setCompleted(taskEditDto.isCompleted());
 
         TaskEntity updatedTask = todoRepository.save(taskEntity);
@@ -74,13 +99,13 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public Long deleteTask(Long id, String username) {
         UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         TaskEntity taskEntity = todoRepository.findById(id)
-                .orElseThrow(() -> new IllegalIdentifierException("Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         if (!taskEntity.getUser().equals(loadedUser)) {
-            throw new SecurityException("You do not have permission to delete this task");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this task");
         }
 
         todoRepository.deleteById(id);
@@ -97,5 +122,21 @@ public class TodoServiceImpl implements TodoService {
                 .completed(taskEntity.isCompleted())
                 .userId(taskEntity.getUser().getId())
                 .build();
+    }
+
+    private LocalDate parseDate(String date) {
+        if (date == null) {
+            return null;
+        } else {
+            return LocalDate.parse(date);
+        }
+    }
+
+    private void validateDates(TaskDto taskCreateDto) {
+        if (taskCreateDto.getDueDate() != null) {
+            if (taskCreateDto.getDueDate().isBefore(LocalDate.now())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Due date cannot be in the past");
+            }
+        }
     }
 }

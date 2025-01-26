@@ -19,19 +19,29 @@ curl --location 'http://localhost:8080/public/login' \
 ```
 
 ```
-curl --location 'http://localhost:8080/api/user' \
---header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM2ODY3MTY3LCJleHAiOjE3MzY4Njg5Njd9.U1Rt0q59QiCox4YC7FXZVBlyxnm9ieJ3rmz4dVRcgri3-f8xB2IO8BeMOtZAL8BE5a4W70bIb238gBiR-ryfiA' \
+curl --location 'http://localhost:8080/api/user/todos' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYWtzaW0udG9sa2FjaG92QGdtYWlsLmNvbSIsImlhdCI6MTczNzkxNDcxMSwiZXhwIjoxNzM3OTE2NTExfQ.Oua8B74dpoCI8fFsC5t1aUsvmLuxQzEGdtIIqsJ-zPeuC5ddxfnpV0PnTp2LGXoNMhVpaStw6H4VD2T4W9Pzmg' \
 --header 'Content-Type: application/json' \
 --data '{
   "title": "My Recording",
   "comment": "This is a test recording",
-  "dueDate": "2024-12-30T18:00:00",
+  "dueDate": "2025-01-27",
   "completed": false
 }'
 ```
 
 ```
-curl --location 'http://localhost:8080/api/user/1' \
---header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxIiwiaWF0IjoxNzM2ODUxMzA0LCJleHAiOjE3MzY4NTMxMDR9.V504RWbiE-1Px7L8ua87L-Jmt-XMtsg9mkCmLwYAaRLOMqYoZZjALnyjsq6OIgoX_NQG6KwSsqRiB8XJx0GomA' \
+curl --location 'http://localhost:8080/api/user/todos/1' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM3OTExNzc4LCJleHAiOjE3Mzc5MTM1Nzh9.KocfTHcdqw5YdOYwvvT5V9h_2d2HfLJ2cBzSGVUsqDfbxixlYoA3lz4_mbMThUBc0SvrljFCKmpCvdlzSz2k_w' \
 --header 'Content-Type: application/json'
+```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filter?createdDate=2025-01-26&dueDate=2025-12-30&completed=false' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM3OTExNzc4LCJleHAiOjE3Mzc5MTM1Nzh9.KocfTHcdqw5YdOYwvvT5V9h_2d2HfLJ2cBzSGVUsqDfbxixlYoA3lz4_mbMThUBc0SvrljFCKmpCvdlzSz2k_w'
+```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filter?createdDate=2025-01-26&dueDate=2025-12-30&completed=false&query=Recording' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM3OTExNzc4LCJleHAiOjE3Mzc5MTM1Nzh9.KocfTHcdqw5YdOYwvvT5V9h_2d2HfLJ2cBzSGVUsqDfbxixlYoA3lz4_mbMThUBc0SvrljFCKmpCvdlzSz2k_w'
 ```
