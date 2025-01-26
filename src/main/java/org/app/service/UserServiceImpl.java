@@ -29,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
         return RegisterUserResponseDto.builder()
                 .username(user.getUsername())
-                .password(user.getPassword())
                 .role(user.getRole()).build();
     }
 
