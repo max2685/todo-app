@@ -17,6 +17,6 @@ public class TaskResponseDto {
     private String comment;
     private LocalDate createdDate;
     private LocalDate dueDate;
-    private boolean completed;
+    private Boolean completed;
     private Long userId;
 }

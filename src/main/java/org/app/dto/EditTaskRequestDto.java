@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class EditTaskRequestDto {
         @NotNull(message = "Completion status must not be null")
-        private boolean completed;
+        private Boolean completed;
 }

@@ -38,9 +38,11 @@ public class TodoControllerTest {
     private String bearerToken;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         String username = Utils.generateRandomEmail();
         String password = Utils.generateRandomPassword();
+        log.info("!!! PASSWORD: " + password);
+
         RegisterUserRequestDto registerRequest = new RegisterUserRequestDto();
         registerRequest.setUsername(username);
         registerRequest.setPassword(password);
@@ -57,6 +59,7 @@ public class TodoControllerTest {
         AuthRequestDto authRequestDto = new AuthRequestDto();
         authRequestDto.setUsername(username);
         authRequestDto.setPassword(password);
+        Thread.sleep(500);
 
         bearerToken = given()
                 .contentType(ContentType.JSON)
@@ -140,56 +143,6 @@ public class TodoControllerTest {
     }
 
     @Test
-    void shouldCreateAndFetchAllTasks() {
-        TaskDto taskDto1 = new TaskDto();
-        taskDto1.setTitle("Test task 1");
-        taskDto1.setComment("Test comment 1");
-        taskDto1.setDueDate(LocalDate.now().plusDays(5));
-        taskDto1.setCompleted(false);
-
-        TaskDto taskDto2 = new TaskDto();
-        taskDto2.setTitle("Test task 2");
-        taskDto2.setComment("Test comment 2");
-        taskDto2.setDueDate(LocalDate.now().plusDays(5));
-        taskDto2.setCompleted(false);
-
-        given()
-                .header("Authorization", "Bearer " + bearerToken)
-                .contentType(ContentType.JSON)
-                .body(taskDto1)
-                .when()
-                .port(port)
-                .post("/api/user/todos")
-                .then()
-                .statusCode(200)
-                .extract().as(TaskResponseDto.class);
-
-        given()
-                .header("Authorization", "Bearer " + bearerToken)
-                .contentType(ContentType.JSON)
-                .body(taskDto2)
-                .when()
-                .port(port)
-                .post("/api/user/todos")
-                .then()
-                .statusCode(200)
-                .extract().as(TaskResponseDto.class);
-
-        List<TaskResponseDto> response = given()
-                .header("Authorization", "Bearer " + bearerToken)
-                .when()
-                .port(port)
-                .get("/api/user/todos/all")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", TaskResponseDto.class);
-
-        assertEquals(2, response.size());
-    }
-
-    @Test
     void shouldDeleteTask() {
         TaskDto taskDto = new TaskDto();
         taskDto.setTitle("Task to delete");
@@ -227,18 +180,18 @@ public class TodoControllerTest {
     }
 
     @Test
-    void shouldFilterAndReturnTasks() {
+    void shouldFilterAndReturnTasks() throws InterruptedException {
         TaskDto taskDto1 = new TaskDto();
-        taskDto1.setTitle("First title 123");
+        taskDto1.setTitle("First title");
         taskDto1.setComment("Created task n1");
         taskDto1.setDueDate(LocalDate.now().plusDays(10));
         taskDto1.setCompleted(false);
 
         TaskDto taskDto2 = new TaskDto();
-        taskDto2.setTitle("Second title 543");
+        taskDto2.setTitle("Second title");
         taskDto2.setComment("Created task n2");
         taskDto2.setDueDate(LocalDate.now().plusDays(5));
-        taskDto2.setCompleted(false);
+        taskDto2.setCompleted(true);
 
         TaskResponseDto createdTask1 = given()
                 .header("Authorization", "Bearer " + bearerToken)
@@ -250,6 +203,9 @@ public class TodoControllerTest {
                 .then()
                 .statusCode(200)
                 .extract().as(TaskResponseDto.class);
+
+        log.info("*** DUE DATE: " + createdTask1.getDueDate() + ", CREATED DATE: " + createdTask1.getCreatedDate() + ", COMPLETED: " + createdTask1.getCompleted() + ", TITLE: " + createdTask1.getTitle());
+
 
         TaskResponseDto createdTask2 = given()
                 .header("Authorization", "Bearer " + bearerToken)
@@ -266,14 +222,16 @@ public class TodoControllerTest {
                 .header("Authorization", "Bearer " + bearerToken)
                 .contentType(ContentType.JSON)
                 .when()
+                .log().all()
                 .port(port)
                 .get("/api/user/todos/filter?" +
                         "createdDate=" + createdTask1.getCreatedDate() +
                         "&dueDate=" + createdTask1.getDueDate() +
-                        "&completed=" + createdTask1.isCompleted() +
+                        "&completed=" + createdTask1.getCompleted() +
                         "&title=" + createdTask1.getTitle().split(" ")[0])
                 .then()
                 .statusCode(200)
+                .log().all()
                 .extract()
                 .jsonPath()
                 .getList(".", TaskResponseDto.class);
@@ -293,7 +251,24 @@ public class TodoControllerTest {
                 .jsonPath()
                 .getList(".", TaskResponseDto.class);
 
-        assertEquals(2, response2.size());
+        assertEquals(1, response2.size());
 
+        Thread.sleep(1000);
+
+        List<TaskResponseDto> response3 = given()
+                .header("Authorization", "Bearer " + bearerToken)
+                .contentType(ContentType.JSON)
+                .when()
+                .log().all()
+                .port(port)
+                .get("/api/user/todos/filter")
+                .then()
+                .log().all()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getList(".", TaskResponseDto.class);
+
+        assertEquals(2, response3.size());
     }
 }

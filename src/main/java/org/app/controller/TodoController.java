@@ -33,12 +33,6 @@ public class TodoController {
         return ResponseEntity.ok(task);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks(Authentication authentication) {
-        List<TaskResponseDto> tasks = todoServiceImpl.getAllTasks(authentication.getName());
-        return ResponseEntity.ok(tasks);
-    }
-
     @GetMapping("/filter")
     public ResponseEntity<List<TaskResponseDto>> filterTasks(
             @RequestParam(value = "createdDate", required = false)
@@ -47,7 +41,7 @@ public class TodoController {
             @RequestParam(value = "dueDate", required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
 
-            @RequestParam(value = "completed", required = false) boolean completed,
+            @RequestParam(value = "completed", required = false) Boolean completed,
             @RequestParam(value = "title", required = false) String title,
             Authentication authentication) {
 

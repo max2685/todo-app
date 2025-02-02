@@ -16,5 +16,5 @@ public class TaskDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
     @NotNull(message = "Completion status must not be null")
-    private boolean completed;
+    private Boolean completed;
 }

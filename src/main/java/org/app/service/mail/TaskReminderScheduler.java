@@ -3,21 +3,25 @@ package org.app.service.mail;
 import lombok.RequiredArgsConstructor;
 import org.app.entities.TaskEntity;
 import org.app.repository.TodoRepository;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 @Component
 @RequiredArgsConstructor
-public class TaskReminderScheduler {
+public class TaskReminderScheduler implements SchedulingConfigurer {
     private final TodoRepository todoRepository;
     private final EmailService emailService;
 
-    //    @Scheduled(cron = "0 0 8 * * ?")
-    @Scheduled(cron = "0 * * * * *")
+    @Value("${email.schedule}")
+    private String emailSchedule;
+
     @Transactional
     public void sendReminders() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
@@ -25,7 +29,7 @@ public class TaskReminderScheduler {
         List<TaskEntity> dueTasks = todoRepository.findAllByDueDate(tomorrow);
         List<TaskEntity> incompleteTasks = dueTasks
                 .stream()
-                .filter(task -> !task.isCompleted())
+                .filter(task -> !task.getCompleted())
                 .toList();
 
         incompleteTasks.forEach(task -> {
@@ -35,5 +39,12 @@ public class TaskReminderScheduler {
                     "\" is due tomorrow (" + task.getDueDate() + ")";
             emailService.sendReminderEmail(email, subject, body);
         });
+    }
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        taskRegistrar.setScheduler(Executors.newSingleThreadScheduledExecutor());
+
+        taskRegistrar.addCronTask(this::sendReminders, emailSchedule);
     }
 }
