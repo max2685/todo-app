@@ -52,14 +52,11 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TaskResponseDto> filterTasks(String username, String createdDate, String dueDate, Boolean completed, String title) {
+    public List<TaskResponseDto> filterTasks(String username, LocalDate createdDate, LocalDate dueDate, Boolean completed, String title) {
         UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
                 .orElseThrow(ExceptionFactory::userNotFound);
 
-        LocalDate parsedCreatedDate = parseDate(createdDate);
-        LocalDate parsedDueDate = parseDate(dueDate);
-
-        List<TaskEntity> tasks = todoRepository.filterTasks(loadedUser, parsedCreatedDate, parsedDueDate, completed, title);
+        List<TaskEntity> tasks = todoRepository.filterTasks(loadedUser, createdDate, dueDate, completed, title);
         return tasks.stream()
                 .map(this::mapToResponseDto)
                 .toList();
@@ -105,14 +102,6 @@ public class TodoServiceImpl implements TodoService {
                 .completed(taskEntity.getCompleted())
                 .userId(taskEntity.getUser().getId())
                 .build();
-    }
-
-    private LocalDate parseDate(String date) {
-        if (date == null) {
-            return null;
-        } else {
-            return LocalDate.parse(date);
-        }
     }
 
     private void validateDates(TaskDto taskCreateDto) {

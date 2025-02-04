@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -36,10 +37,10 @@ public class TodoController {
     @GetMapping("/filter")
     public ResponseEntity<List<TaskResponseDto>> filterTasks(
             @RequestParam(value = "createdDate", required = false)
-            @DateTimeFormat(pattern = "yyyy-MM-dd") String createdDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdDate,
 
             @RequestParam(value = "dueDate", required = false)
-            @DateTimeFormat(pattern = "yyyy-MM-dd") String dueDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
 
             @RequestParam(value = "completed", required = false) Boolean completed,
             @RequestParam(value = "title", required = false) String title,

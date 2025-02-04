@@ -4,6 +4,7 @@ import org.app.dto.EditTaskRequestDto;
 import org.app.dto.TaskDto;
 import org.app.dto.TaskResponseDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TodoService {
@@ -15,5 +16,5 @@ public interface TodoService {
 
     Long deleteTask(Long id, String username);
 
-    List<TaskResponseDto> filterTasks(String username, String createdDate, String dueDate, Boolean completed, String query);
+    List<TaskResponseDto> filterTasks(String username, LocalDate createdDate, LocalDate dueDate, Boolean completed, String query);
 }

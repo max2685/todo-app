@@ -204,9 +204,6 @@ public class TodoControllerTest {
                 .statusCode(200)
                 .extract().as(TaskResponseDto.class);
 
-        log.info("*** DUE DATE: " + createdTask1.getDueDate() + ", CREATED DATE: " + createdTask1.getCreatedDate() + ", COMPLETED: " + createdTask1.getCompleted() + ", TITLE: " + createdTask1.getTitle());
-
-
         TaskResponseDto createdTask2 = given()
                 .header("Authorization", "Bearer " + bearerToken)
                 .contentType(ContentType.JSON)
@@ -222,7 +219,6 @@ public class TodoControllerTest {
                 .header("Authorization", "Bearer " + bearerToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .log().all()
                 .port(port)
                 .get("/api/user/todos/filter?" +
                         "createdDate=" + createdTask1.getCreatedDate() +
@@ -231,7 +227,6 @@ public class TodoControllerTest {
                         "&title=" + createdTask1.getTitle().split(" ")[0])
                 .then()
                 .statusCode(200)
-                .log().all()
                 .extract()
                 .jsonPath()
                 .getList(".", TaskResponseDto.class);
@@ -244,7 +239,7 @@ public class TodoControllerTest {
                 .when()
                 .port(port)
                 .get("/api/user/todos/filter?" +
-                        "createdDate=" + createdTask2.getCreatedDate())
+                        "dueDate=" + createdTask2.getDueDate())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -259,11 +254,9 @@ public class TodoControllerTest {
                 .header("Authorization", "Bearer " + bearerToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .log().all()
                 .port(port)
                 .get("/api/user/todos/filter")
                 .then()
-                .log().all()
                 .statusCode(200)
                 .extract()
                 .jsonPath()

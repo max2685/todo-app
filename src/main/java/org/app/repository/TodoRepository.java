@@ -15,10 +15,10 @@ public interface TodoRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findAllByDueDate(LocalDate dueDate);
 
     @Query("SELECT t FROM TaskEntity t WHERE t.user = :user " +
-            "AND (:createdDate IS NULL OR t.createdDate = :createdDate) " +
-            "AND (:dueDate IS NULL OR t.dueDate = :dueDate) " +
+            "AND (CAST(:createdDate AS date) IS NULL OR t.createdDate = :createdDate) " +
+            "AND (CAST(:dueDate AS date) IS NULL OR t.dueDate = :dueDate) " +
             "AND (:completed IS NULL OR t.completed = :completed) " +
-            "AND (:title IS NULL OR (t.title) LIKE LOWER(CONCAT('%', :title, '%')))")
+            "AND (:title IS NULL OR LOWER(t.title) LIKE LOWER('%' || CAST(:title AS text) || '%'))")
     List<TaskEntity> filterTasks(@Param("user") UserEntity user,
                                  @Param("createdDate") LocalDate createdDate,
                                  @Param("dueDate") LocalDate dueDate,
