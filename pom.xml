@@ -53,6 +53,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
@@ -77,7 +83,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.6.0</version>
+            <version>42.7.5</version>
         </dependency>
 
         <dependency>
@@ -135,6 +141,41 @@
                     <release>17</release>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>io.fabric8</groupId>-->
+<!--                <artifactId>docker-maven-plugin</artifactId>-->
+<!--                <version>0.45.1</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>start</id>-->
+<!--                        <phase>pre-integration-test</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>start</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <images>-->
+<!--                        <image>-->
+<!--                            <name>postgres</name>-->
+<!--                            <alias>postgres</alias>-->
+<!--                            <run>-->
+<!--                                <ports>-->
+<!--                                    <port>5432:5432</port>-->
+<!--                                </ports>-->
+<!--                                <env>-->
+<!--                                    <POSTGRES_DB>todoapp</POSTGRES_DB>-->
+<!--                                    <POSTGRES_USER>user</POSTGRES_USER>-->
+<!--                                    <POSTGRES_PASSWORD>password</POSTGRES_PASSWORD>-->
+<!--                                </env>-->
+<!--                                <wait>-->
+<!--                                    <log>database system is ready to accept connections</log>-->
+<!--                                </wait>-->
+<!--                            </run>-->
+<!--                        </image>-->
+<!--                    </images>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

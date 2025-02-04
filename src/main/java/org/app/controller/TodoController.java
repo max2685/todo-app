@@ -2,18 +2,23 @@ package org.app.controller;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.app.dto.EditTaskRequestDto;
 import org.app.dto.TaskDto;
 import org.app.dto.TaskResponseDto;
 import org.app.service.TodoServiceImpl;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @Validated
-@RequestMapping("/api/user")
+@RequestMapping("/api/user/todos")
 public class TodoController {
     private final TodoServiceImpl todoServiceImpl;
 
@@ -29,9 +34,25 @@ public class TodoController {
         return ResponseEntity.ok(task);
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<TaskResponseDto>> filterTasks(
+            @RequestParam(value = "createdDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdDate,
+
+            @RequestParam(value = "dueDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+
+            @RequestParam(value = "completed", required = false) Boolean completed,
+            @RequestParam(value = "title", required = false) String title,
+            Authentication authentication) {
+
+        List<TaskResponseDto> tasks = todoServiceImpl.filterTasks(authentication.getName(), createdDate, dueDate, completed, title);
+        return ResponseEntity.ok(tasks);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("id") Long id, @Valid @RequestBody TaskDto taskEditDto, Authentication authentication) {
-        TaskResponseDto updatedTask = todoServiceImpl.editTask(id, taskEditDto, authentication.getName());
+    public ResponseEntity<TaskResponseDto> updateTaskStatus(@PathVariable("id") Long id, @Valid @RequestBody EditTaskRequestDto taskEditDto, Authentication authentication) {
+        TaskResponseDto updatedTask = todoServiceImpl.editTaskStatus(id, taskEditDto, authentication.getName());
         return ResponseEntity.ok(updatedTask);
     }
 

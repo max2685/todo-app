@@ -1,5 +1,6 @@
 package org.app.unit;
 
+import org.app.dto.EditTaskRequestDto;
 import org.app.dto.TaskDto;
 import org.app.dto.TaskResponseDto;
 import org.app.entities.TaskEntity;
@@ -7,12 +8,12 @@ import org.app.entities.UserEntity;
 import org.app.repository.TodoRepository;
 import org.app.service.TodoServiceImpl;
 import org.app.service.UserServiceImpl;
-import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -42,9 +43,9 @@ class TodoServiceImplTest {
     @Test
     void testSaveTask() {
         TaskDto taskDto = new TaskDto();
-        taskDto.setTitle("Test Task");
+        taskDto.setTitle("Test task");
         taskDto.setComment("This is a test comment.");
-        taskDto.setDueDate(LocalDate.of(2025, 1, 31));
+        taskDto.setDueDate(LocalDate.now().plusDays(5));
         taskDto.setCompleted(false);
 
         UserEntity user = new UserEntity();
@@ -56,7 +57,7 @@ class TodoServiceImplTest {
         savedEntity.setTitle(taskDto.getTitle());
         savedEntity.setComment(taskDto.getComment());
         savedEntity.setDueDate(taskDto.getDueDate());
-        savedEntity.setCompleted(taskDto.isCompleted());
+        savedEntity.setCompleted(taskDto.getCompleted());
         savedEntity.setCreatedDate(LocalDate.now());
         savedEntity.setUser(user);
 
@@ -66,9 +67,9 @@ class TodoServiceImplTest {
         TaskResponseDto response = todoService.saveTask(taskDto, username);
 
         assertNotNull(response);
-        assertEquals("Test Task", response.getTitle());
+        assertEquals("Test task", response.getTitle());
         assertEquals("This is a test comment.", response.getComment());
-        assertEquals(LocalDate.of(2025, 1, 31), response.getDueDate());
+        assertEquals(LocalDate.now().plusDays(5), response.getDueDate());
         assertEquals(id, response.getUserId());
         verify(todoRepository, times(1)).save(any(TaskEntity.class));
     }
@@ -81,9 +82,9 @@ class TodoServiceImplTest {
 
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setId(id);
-        taskEntity.setTitle("Test Task");
+        taskEntity.setTitle("Test task");
         taskEntity.setComment("This is a test comment.");
-        taskEntity.setDueDate(LocalDate.of(2025, 1, 31));
+        taskEntity.setDueDate(LocalDate.now().plusDays(5));
         taskEntity.setCompleted(false);
         taskEntity.setUser(user);
 
@@ -94,7 +95,7 @@ class TodoServiceImplTest {
 
         assertNotNull(response);
         assertEquals(id, response.getId());
-        assertEquals("Test Task", response.getTitle());
+        assertEquals("Test task", response.getTitle());
         assertEquals(id, response.getUserId());
         verify(todoRepository, times(1)).findById(id);
     }
@@ -107,23 +108,20 @@ class TodoServiceImplTest {
 
         TaskEntity existingTask = new TaskEntity();
         existingTask.setId(id);
-        existingTask.setTitle("Old Title");
-        existingTask.setComment("Old Comment");
-        existingTask.setDueDate(LocalDate.of(2025, 1, 1));
+        existingTask.setTitle("Old title");
+        existingTask.setComment("Old comment");
+        existingTask.setDueDate(LocalDate.now().plusDays(5));
         existingTask.setCompleted(false);
         existingTask.setUser(user);
 
-        TaskDto taskDto = new TaskDto();
-        taskDto.setTitle("New Title");
-        taskDto.setComment("New Comment");
-        taskDto.setDueDate(LocalDate.of(2025, 2, 1));
+        EditTaskRequestDto taskDto = new EditTaskRequestDto();
         taskDto.setCompleted(true);
 
         TaskEntity updatedTask = new TaskEntity();
         updatedTask.setId(id);
-        updatedTask.setTitle("New Title");
-        updatedTask.setComment("New Comment");
-        updatedTask.setDueDate(LocalDate.of(2025, 2, 1));
+        updatedTask.setTitle("New title");
+        updatedTask.setComment("New comment");
+        updatedTask.setDueDate(LocalDate.now().plusDays(5));
         updatedTask.setCompleted(true);
         updatedTask.setUser(user);
 
@@ -131,11 +129,11 @@ class TodoServiceImplTest {
         when(todoRepository.findById(id)).thenReturn(Optional.of(existingTask));
         when(todoRepository.save(existingTask)).thenReturn(updatedTask);
 
-        TaskResponseDto response = todoService.editTask(id, taskDto, username);
+        TaskResponseDto response = todoService.editTaskStatus(id, taskDto, username);
 
         assertNotNull(response);
-        assertEquals("New Title", response.getTitle());
-        assertEquals("New Comment", response.getComment());
+        assertEquals("New title", response.getTitle());
+        assertEquals("New comment", response.getComment());
         assertEquals(id, response.getUserId());
         verify(todoRepository, times(1)).findById(id);
         verify(todoRepository, times(1)).save(existingTask);
@@ -146,7 +144,7 @@ class TodoServiceImplTest {
         when(userService.loadUserByUsernameOpt(username)).thenReturn(Optional.of(new UserEntity()));
         when(todoRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalIdentifierException.class, () -> todoService.getTaskById(id, username));
+        assertThrows(ResponseStatusException.class, () -> todoService.getTaskById(id, username));
         verify(todoRepository, times(1)).findById(id);
     }
 
@@ -186,7 +184,7 @@ class TodoServiceImplTest {
         when(userService.loadUserByUsernameOpt(username)).thenReturn(Optional.of(user));
         when(todoRepository.findById(id)).thenReturn(Optional.of(taskEntity));
 
-        assertThrows(SecurityException.class, () -> todoService.deleteTask(id, username));
+        assertThrows(ResponseStatusException.class, () -> todoService.deleteTask(id, username));
         verify(todoRepository, times(0)).deleteById(id);
     }
 }
