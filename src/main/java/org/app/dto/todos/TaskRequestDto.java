@@ -1,4 +1,4 @@
-package org.app.dto;
+package org.app.dto.todos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,12 +11,13 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskResponseDto {
+public class TaskRequestDto {
     private Long id;
     private String title;
-    private String comment;
     private LocalDate createdDate;
     private LocalDate dueDate;
     private Boolean completed;
-    private Long userId;
+    private Integer page;
+    private Integer size;
+    private String sort;
 }

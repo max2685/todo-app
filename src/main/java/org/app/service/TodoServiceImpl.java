@@ -1,19 +1,28 @@
 package org.app.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.app.dto.EditTaskRequestDto;
-import org.app.dto.TaskDto;
-import org.app.dto.TaskResponseDto;
+import lombok.extern.java.Log;
+import org.app.dto.todos.*;
 import org.app.entities.TaskEntity;
 import org.app.entities.UserEntity;
 import org.app.factories.ExceptionFactory;
-import org.app.repository.TodoRepository;
+import org.app.repository.todo.TodoRepository;
+import org.app.repository.todo.TodoSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
+@Log
 @RequiredArgsConstructor
 public class TodoServiceImpl implements TodoService {
     private final TodoRepository todoRepository;
@@ -60,6 +69,40 @@ public class TodoServiceImpl implements TodoService {
         return tasks.stream()
                 .map(this::mapToResponseDto)
                 .toList();
+    }
+
+    public Page<TaskResponseDto> searchEmployeeWithPaginationSortingAndFiltering(String username, TaskRequestDto taskRequestDto) {
+        UserEntity loadedUser = userService.loadUserByUsernameOpt(username)
+                .orElseThrow(ExceptionFactory::userNotFound);
+
+        FilterDto filterDto = FilterDto.builder()
+                .title(taskRequestDto.getTitle())
+                .createdDate(taskRequestDto.getCreatedDate())
+                .dueDate(taskRequestDto.getDueDate())
+                .completed(taskRequestDto.getCompleted())
+                .build();
+
+        List<SortDto> sortDtos = jsonStringToSortDto(taskRequestDto.getSort());
+        List<Sort.Order> orders = new ArrayList<>();
+
+        if (sortDtos != null) {
+            sortDtos.forEach(sortDto -> {
+                Sort.Direction direction = Objects.equals(sortDto.getDirection(), "desc")
+                        ? Sort.Direction.DESC : Sort.Direction.ASC;
+                orders.add(new Sort.Order(direction, sortDto.getField()));
+            });
+        }
+
+        PageRequest pageRequest = PageRequest.of(
+                taskRequestDto.getPage(),
+                taskRequestDto.getSize(),
+                Sort.by(orders)
+        );
+
+        Specification<TaskEntity> specification = TodoSpecification.getSpecification(loadedUser, filterDto);
+        Page<TaskEntity> todos = todoRepository.findAll(specification, pageRequest);
+
+        return todos.map(this::mapToResponseDto);
     }
 
     @Override
@@ -109,6 +152,17 @@ public class TodoServiceImpl implements TodoService {
             if (taskCreateDto.getDueDate().isBefore(LocalDate.now())) {
                 throw ExceptionFactory.dueDateNotCorrect();
             }
+        }
+    }
+
+    private List<SortDto> jsonStringToSortDto(String jsonString) {
+        try {
+            ObjectMapper obj = new ObjectMapper();
+            return obj.readValue(jsonString, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.info(String.format("Exception: %s", e));
+            return null;
         }
     }
 }

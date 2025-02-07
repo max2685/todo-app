@@ -1,4 +1,4 @@
-package org.app.dto;
+package org.app.dto.auth;
 
 import lombok.Builder;
 import lombok.Data;

@@ -2,10 +2,13 @@ package org.app.controller;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.app.dto.EditTaskRequestDto;
-import org.app.dto.TaskDto;
-import org.app.dto.TaskResponseDto;
+import lombok.extern.java.Log;
+import org.app.dto.todos.EditTaskRequestDto;
+import org.app.dto.todos.TaskDto;
+import org.app.dto.todos.TaskRequestDto;
+import org.app.dto.todos.TaskResponseDto;
 import org.app.service.TodoServiceImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +21,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @Validated
+@Log
 @RequestMapping("/api/user/todos")
 public class TodoController {
     private final TodoServiceImpl todoServiceImpl;
@@ -48,6 +52,37 @@ public class TodoController {
 
         List<TaskResponseDto> tasks = todoServiceImpl.filterTasks(authentication.getName(), createdDate, dueDate, completed, title);
         return ResponseEntity.ok(tasks);
+    }
+
+    @GetMapping("/filtering-pagination-sorting")
+    public ResponseEntity<Page<TaskResponseDto>> searchEmployeeWithPaginationSortingAndFiltering(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "5") Integer size,
+            @RequestParam(name = "sort", defaultValue = "[{\"field\":\"createdDate\",\"direction\":\"desc\"}]", required = false) String sort,
+
+            @RequestParam(value = "createdDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdDate,
+
+            @RequestParam(value = "dueDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+
+            @RequestParam(value = "completed", required = false) Boolean completed,
+            @RequestParam(value = "title", required = false) String title,
+            Authentication authentication) {
+
+        Page<TaskResponseDto> taskResponseDtoPage = todoServiceImpl.searchEmployeeWithPaginationSortingAndFiltering(
+                authentication.getName(),
+                TaskRequestDto.builder()
+                        .createdDate(createdDate)
+                        .dueDate(dueDate)
+                        .completed(completed)
+                        .title(title)
+                        .page(page)
+                        .size(size)
+                        .sort(sort)
+                        .build());
+
+        return ResponseEntity.ok(taskResponseDtoPage);
     }
 
     @PutMapping("/{id}")

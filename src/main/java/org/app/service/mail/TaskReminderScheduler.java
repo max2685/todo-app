@@ -2,7 +2,7 @@ package org.app.service.mail;
 
 import lombok.RequiredArgsConstructor;
 import org.app.entities.TaskEntity;
-import org.app.repository.TodoRepository;
+import org.app.repository.todo.TodoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;

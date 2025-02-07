@@ -2,7 +2,7 @@ package org.app.config.service;
 
 import lombok.AllArgsConstructor;
 import org.app.entities.UserEntity;
-import org.app.repository.UserRepository;
+import org.app.repository.user.UserRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

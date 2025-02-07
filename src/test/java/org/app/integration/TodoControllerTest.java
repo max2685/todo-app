@@ -2,8 +2,9 @@ package org.app.integration;
 
 import io.restassured.http.ContentType;
 import lombok.extern.java.Log;
-import org.app.Utils;
-import org.app.dto.*;
+import org.app.dto.todos.EditTaskRequestDto;
+import org.app.dto.todos.TaskDto;
+import org.app.dto.todos.TaskResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Log
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TodoControllerTest {
+public class TodoControllerTest extends IntegrationUtils {
 
     @Container
     @ServiceConnection
@@ -39,37 +40,7 @@ public class TodoControllerTest {
 
     @BeforeEach
     void setUp() throws InterruptedException {
-        String username = Utils.generateRandomEmail();
-        String password = Utils.generateRandomPassword();
-        log.info("!!! PASSWORD: " + password);
-
-        RegisterUserRequestDto registerRequest = new RegisterUserRequestDto();
-        registerRequest.setUsername(username);
-        registerRequest.setPassword(password);
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(registerRequest)
-                .when()
-                .port(port)
-                .post("/public/register")
-                .then()
-                .statusCode(200);
-
-        AuthRequestDto authRequestDto = new AuthRequestDto();
-        authRequestDto.setUsername(username);
-        authRequestDto.setPassword(password);
-        Thread.sleep(500);
-
-        bearerToken = given()
-                .contentType(ContentType.JSON)
-                .body(authRequestDto)
-                .when()
-                .port(port)
-                .post("/public/login")
-                .then()
-                .statusCode(200)
-                .extract().body().asString().replace("Bearer ", "");
+        bearerToken = super.getBearerToken(port);
     }
 
     @Test
@@ -180,7 +151,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    void shouldFilterAndReturnTasks() throws InterruptedException {
+    void shouldFilterAndReturnTasks() {
         TaskDto taskDto1 = new TaskDto();
         taskDto1.setTitle("First title");
         taskDto1.setComment("Created task n1");
@@ -247,8 +218,6 @@ public class TodoControllerTest {
                 .getList(".", TaskResponseDto.class);
 
         assertEquals(1, response2.size());
-
-        Thread.sleep(1000);
 
         List<TaskResponseDto> response3 = given()
                 .header("Authorization", "Bearer " + bearerToken)
