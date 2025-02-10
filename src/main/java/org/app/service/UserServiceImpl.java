@@ -3,10 +3,10 @@ package org.app.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.app.config.Role;
-import org.app.dto.RegisterUserRequestDto;
-import org.app.dto.RegisterUserResponseDto;
+import org.app.dto.auth.RegisterUserRequestDto;
+import org.app.dto.auth.RegisterUserResponseDto;
 import org.app.entities.UserEntity;
-import org.app.repository.UserRepository;
+import org.app.repository.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

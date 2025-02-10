@@ -1,4 +1,4 @@
-package org.app.repository;
+package org.app.repository.user;
 
 import org.app.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

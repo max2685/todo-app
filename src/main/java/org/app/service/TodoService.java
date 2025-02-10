@@ -1,8 +1,8 @@
 package org.app.service;
 
-import org.app.dto.EditTaskRequestDto;
-import org.app.dto.TaskDto;
-import org.app.dto.TaskResponseDto;
+import org.app.dto.todos.EditTaskRequestDto;
+import org.app.dto.todos.TaskDto;
+import org.app.dto.todos.TaskResponseDto;
 
 import java.time.LocalDate;
 import java.util.List;

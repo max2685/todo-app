@@ -20,7 +20,7 @@ curl --location 'http://localhost:8080/public/login' \
 
 ```
 curl --location 'http://localhost:8080/api/user/todos' \
---header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4NjcwMjQ3LCJleHAiOjE3Mzg2NzIwNDd9.HT7w3Uj-SVsE3fdsbIVcJJddJnKMjr7OwBhMslxBDc2stnlaE_bYrAh6cxqQ8YFXW6Qchi36wDc4qcHDov2ekw' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg' \
 --header 'Content-Type: application/json' \
 --data '{
   "title": "My Recording1",
@@ -30,12 +30,12 @@ curl --location 'http://localhost:8080/api/user/todos' \
 }'
 
 curl --location 'http://localhost:8080/api/user/todos' \
---header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4NjcwMjQ3LCJleHAiOjE3Mzg2NzIwNDd9.HT7w3Uj-SVsE3fdsbIVcJJddJnKMjr7OwBhMslxBDc2stnlaE_bYrAh6cxqQ8YFXW6Qchi36wDc4qcHDov2ekw' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg' \
 --header 'Content-Type: application/json' \
 --data '{
   "title": "My Recording2",
   "comment": "This is a test recording2",
-  "dueDate": "2025-02-05",
+  "dueDate": "2025-02-30",
   "completed": true
 }'
 ```
@@ -75,3 +75,28 @@ curl --location 'http://localhost:8080/api/user/todos/filter?completed=true' \
 curl --location 'http://localhost:8080/api/user/todos/filter' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4Njc1MDIyLCJleHAiOjE3Mzg4NTUwMjJ9.OXx13dkmccSWE4tmy81NbdBOa4eM1nG84SaxcEMqooNAqMq-ihZ_EUgJe0SkVSB0cuEQGoITH2ZI_fzrgWz-Sg'
 ```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filtering-pagination-sorting' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg'
+```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filtering-pagination-sorting?size=1' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg'
+```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filtering-pagination-sorting?completed=false' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg'
+```
+
+```
+curl --location 'http://localhost:8080/api/user/todos/filtering-pagination-sorting?sort=%5B%7B%22field%22%3A%22title%22%2C%22direction%22%3A%22desc%22%7D%5D' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXgxMjMzMjFAZ21haWwuY29tIiwiaWF0IjoxNzM4OTMwODA4LCJleHAiOjE3MzkxMTA4MDh9.1sb4Wvk6qaTFLsFMa3EozV3dstv4QGqkyTJw3nPPggORfzOd-IhlgBwibT-afdHZpfbVtgqRUY5KolZGYGOovg'
+```
+
+
+curl --location 'http://localhost:8080/api/user/todos/filtering&pagination&sorting?sort=[{"field":"title","direction":"asc"}]'
+
+

@@ -1,11 +1,11 @@
 package org.app.unit;
 
-import org.app.dto.EditTaskRequestDto;
-import org.app.dto.TaskDto;
-import org.app.dto.TaskResponseDto;
+import org.app.dto.todos.EditTaskRequestDto;
+import org.app.dto.todos.TaskDto;
+import org.app.dto.todos.TaskResponseDto;
 import org.app.entities.TaskEntity;
 import org.app.entities.UserEntity;
-import org.app.repository.TodoRepository;
+import org.app.repository.todo.TodoRepository;
 import org.app.service.TodoServiceImpl;
 import org.app.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
